@@ -43,6 +43,8 @@ move_player :: proc (
 
 	entity.dp   = ddp * dt + entity.dp
 
+	level := state.levels[state.curr_level]
+
 	for j in 0..<4{
 		t_min :f32= 1.0
 		wall_normal :vec2 = {}
@@ -52,7 +54,7 @@ move_player :: proc (
 		offset      : vec2 = {8, 5}
 		test_offset : vec2 = {2, 3}
 
-		for &v, i in &state.envs{
+		for &v, i in &level.envs{
 			if(v.collides){
 				scale_sum  := v.scale + entity.scale
 				min_corner := -0.5 * scale_sum
@@ -188,7 +190,7 @@ move_player :: proc (
 					delta = desired_pos - entity.pos
 					delta = delta -1 *  linalg.inner_product(delta,wall_normal) * wall_normal
 
-					test_entity := state.envs[hit_entity_index]
+					test_entity := level.envs[hit_entity_index]
 
 					if(test_entity.is_finish){
 						fmt.println("LEVEL COMPLETED !")
