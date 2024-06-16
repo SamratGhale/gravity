@@ -64,7 +64,3 @@ render_menu :: proc(){
 
 }
 
-
-render_level_selector :: proc(){
-
-}

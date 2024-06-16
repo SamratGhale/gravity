@@ -1,10 +1,11 @@
 package main
 
-import rl "vendor:raylib"
+import rl  "vendor:raylib"
 import fmt "core:fmt"
-import "core:math/linalg"
+import "core:c"
+import     "core:math/linalg"
 
-G :: 400
+G               :: 400
 PLAYER_JUMP_SPD :: 350
 PLAYER_HOR_SPD  :: 200
 
@@ -16,9 +17,8 @@ FaceDirection :: enum{
 vec2 :: rl.Vector2
 
 EntityBase :: struct {
-	pos : vec2,
-	scale : vec2,
-	collides : b32,
+	pos, scale : vec2,
+	collides   : b32,
 	is_gravity : b32,
 }
 
@@ -35,18 +35,14 @@ GameMode :: enum {
 Player :: struct{
 	//pos     : rl.Vector2,
 	using base : EntityBase,
-	speed   : f32,
-	orient  : Orientation,
-	dp : vec2,
-	canJump : bool,
-	is_jumping: bool,
-	is_falling: bool,
-	jmp_index : i32,
-
+	speed      : f32,
+	orient     : Orientation,
+	dp         : vec2,
+	canJump    : bool,
+	is_jumping : bool,
+	is_falling : bool,
+	jmp_index  : i32,
 	face_direction : FaceDirection,
-
-	current_level: u32,
-
 }
 
 Anim :: struct {
@@ -61,8 +57,6 @@ EnvItem :: struct{
 	color      : rl.Color,
 	is_finish  : bool, //this means that if the player touches this then the level is over
 }
-
-
 
 GameState :: struct{
 	player      : Player,
@@ -80,48 +74,10 @@ GameState :: struct{
 	mode : GameMode,
 	curr_level: u32,
 	menu : Menu,
+	current_level: u32,
 }
 
 state : GameState
-
-update_player :: proc(using state : ^GameState, delta : f32){
-	if rl.IsKeyDown(.A)  {
-		player.pos.x -= PLAYER_HOR_SPD * delta
-		player.face_direction = .LEFT
-	}
-	if rl.IsKeyDown(.D) {
-		player.pos.x += PLAYER_HOR_SPD * delta
-		player.face_direction = .RIGHT
-	}
-
-	if rl.IsKeyDown(.SPACE) && player.canJump{
-		player.speed   = -PLAYER_JUMP_SPD
-		player.canJump = false
-	}
-
-	hit := false
-
-	level := state.levels[state.curr_level]
-	for &item in &level.envs{
-		pos := &player.pos
-
-		if (item.collides && (item.rect.x <= pos.x) && ((item.rect.x + item.rect.width) >= pos.x) && (item.rect.y >= pos.y) &&
-		(item.rect.y <= pos.y + player.speed*delta)) {
-			hit = true
-			player.speed = 0
-			pos.y = item.rect.y
-			break
-		}
-	}
-
-	if !hit{
-		player.pos.y += player.speed * delta
-		player.speed += G*delta
-		player.canJump = false
-	}else{
-		player.canJump = true
-	}
-}
 
 update_camera_center :: proc(using state : ^GameState){
 	camera.offset = state.window_size/2.0
@@ -149,13 +105,13 @@ update_angel :: proc(using state : ^GameState){
 
 create_env_item :: proc(rect: rl.Rectangle, is_finish : bool = false)->EnvItem{
 	env : EnvItem
-	env.pos  = {rect.x + rect.width/2, rect.y+ rect.height/2}
-	env.rect = rect
-	env.color = rl.GRAY
-	env.collides = true
-	env.is_gravity = true
-	env.scale = {rect.width, rect.height}
-	env.is_finish = is_finish
+	env.pos         = { rect.x + rect.width/2, rect.y + rect.height/2 }
+	env.rect        = rect
+	env.color       = rl.GRAY
+	env.collides    = true
+	env.is_gravity  = true
+	env.scale       = {rect.width, rect.height}
+	env.is_finish   = is_finish
 
 	if is_finish{
 		env.color = rl.RED
@@ -188,6 +144,9 @@ main :: proc (){
 	//font := rl.LoadFont("c:/Windows/Fonts/Consola.ttf")
 
 	//Read textures
+
+    rl.GuiSetStyle( .DEFAULT, i32(rl.GuiDefaultProperty.TEXT_SIZE), 20);
+    //rl.GuiSetStyle( .DEFAULT, i32(rl.GuiDefaultProperty.LINE_COLOR),  cast(uint)0x838383ff);
 
 
 	append(&angel.texs, load_texture("angel/1.png", 0.5, false)) 
@@ -224,13 +183,21 @@ main :: proc (){
 				render_menu()
 			}
 			case .LEVEL_SELECTOR:{
-				render_menu()
+                render_level_selector()
+                if rl.IsKeyDown(.ESCAPE){
+                    fmt.println("Pressed escape key")
+                    state.mode = .MENU
+                }
 			}
 			case .PLAY:{
-				render_game()
+                if rl.IsKeyDown(.ESCAPE){
+                    fmt.println("Pressed escape key")
+                    state.mode = .LEVEL_SELECTOR
+                }
+                render_game()
 			}
 		}
-
+        //rl.PollInputEvents()
 	}
 }
 

@@ -3,8 +3,6 @@ import rl "vendor:raylib"
 import fmt "core:fmt"
 import "core:math/linalg"
 
-
-
 render_game :: proc(){
 	using state
 	delta_time :f32= rl.GetFrameTime()
@@ -18,15 +16,11 @@ render_game :: proc(){
 
 	if rl.IsKeyPressed(.R){
 		player.orient = .Right
-
 	}
-
-
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.LIGHTGRAY)
 
 	rl.BeginMode2D(camera)
-
 	{
 		delta := delta_time * PLAYER_HOR_SPD
 		player_ddp : vec2
@@ -34,7 +28,7 @@ render_game :: proc(){
 
 		if(!v.is_falling){
 
-			if(rl.IsKeyPressed(.SPACE)){
+			if rl.IsKeyPressed(.SPACE){
 				if(!v.is_jumping){
 					v.is_jumping = true
 					v.jmp_index = 0
@@ -197,9 +191,10 @@ render_game :: proc(){
 
 	rl.DrawTextureEx(angel.texs[angel.index], {100, 10}, 0, 0.5 , rl.WHITE)
 	rl.EndMode2D()
-	rl.GuiStatusBar({2,2,100,30}, fmt.ctprintf("%f",player.pos))
-	rl.GuiStatusBar({2,31,100,30}, fmt.ctprintf("%f",camera.offset))
-	rl.GuiStatusBar({2,61,100,30}, fmt.ctprintf("Level %d",state.curr_level + 1))
+	rl.GuiStatusBar({2,2,200,30}, fmt.ctprintf("%f",player.pos))
+	rl.GuiStatusBar({2,31,200,30}, fmt.ctprintf("%f",camera.offset))
+	rl.GuiStatusBar({2,61,200,30}, fmt.ctprintf("Level %d",state.curr_level + 1))
+	rl.GuiStatusBar({2,91,200,30}, fmt.ctprintf("Orient %s",state.player.orient))
 
 
 	rl.EndDrawing()

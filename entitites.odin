@@ -193,7 +193,26 @@ move_player :: proc (
 					test_entity := level.envs[hit_entity_index]
 
 					if(test_entity.is_finish){
-						fmt.println("LEVEL COMPLETED !")
+
+                        level := &state.levels[state.current_level]
+
+                        if test_entity.scale.x > test_entity.scale.y{
+                            //in this case the player should be either buttom or top
+                            if entity.orient == .Left || entity.orient == .Right{
+                                level.is_finished = true
+                                state.mode = .LEVEL_SELECTOR
+                                fmt.println("LEVEL COMPLETED !")
+                            }
+                        }else{
+                            if entity.orient == .Top || entity.orient == .Buttom{
+                                level.is_finished = true
+                                state.mode = .LEVEL_SELECTOR
+                                fmt.println("LEVEL COMPLETED !")
+                            }
+                        }
+                            
+
+                        //Go to next level
 					}
 				}else{
 					break;
